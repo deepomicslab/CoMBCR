@@ -13,9 +13,6 @@ import pickle
 import pandas as pd
 import random
 import csv
-import argparse
-import scanpy as sc
-import seaborn as sns
 from sklearn.preprocessing import LabelEncoder
 from transformers import ( 
         RobertaTokenizer, 
