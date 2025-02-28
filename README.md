@@ -10,7 +10,7 @@ We recommend the versions of the following packages:
 - Numpy (1.26.4)  
 - Pandas (2.2.3)  
 - Scikit-learn (1.5.1)  
-- huggingface_hub by ```python -m pip install huggingface_hub```
+- huggingface_hub by ```python3 -m pip install huggingface_hub```
 
 ## Installation
 Install CoMBCR using pip:
