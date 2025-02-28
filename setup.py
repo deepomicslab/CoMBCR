@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='CoMBCR',
-    version='0.1.1',
+    version='0.1.2',
     author='Yiping Zou',
     author_email='yipingzou2-c@my.cityu.edu.hk',
     description='A python lib for CoMBCR',
