@@ -1,3 +1,5 @@
+import warnings
+warnings.filterwarnings('ignore')
 from transformers import ( 
         RobertaTokenizer, 
         RoFormerModel,
@@ -14,6 +16,8 @@ import torch.nn.functional as F
 from torch import optim
 import argparse
 import random
+import gc
+import CoMBCR
 
 def seed_torch(seed=0):
     random.seed(seed)
@@ -25,10 +29,18 @@ def seed_torch(seed=0):
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
 
+def get_package_abspath():
+    # Get the directory path of the package
+    package_path = os.path.dirname(CoMBCR.__file__)
+    # Get the absolute path
+    abs_path = os.path.abspath(package_path)
+    return abs_path
+
+# Print the absolute path of the CoMBCR package
+print(get_package_abspath())
     
 def batch_process_sequences(sequences, tokenizer, model, device, batch_size=32):
     berta_embs = []
-    CLS_embs = []
     
     for i in range(0, len(sequences), batch_size):
         batch = sequences[i:i + batch_size]
@@ -53,23 +65,38 @@ def batch_process_sequences(sequences, tokenizer, model, device, batch_size=32):
     
     return berta_emb
 
-def generate_original_bcremb(datapath, outdir, outfilename = "antiberta_embedding.csv"):
+if __name__ == "__main__":
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--datapath', type=str)
+    parser.add_argument('--outdir', type=str, default="./")
+    parser.add_argument('--outfilename', type=str, default="antiberta_embedding.csv")
+    args = parser.parse_args()
+    
+    datapath = args.datapath
+    outdir = args.outdir
+    outfilename = args.outfilename
     
     seed_torch()
     # Find the directory of the current file (combcr.py)
-    current_dir = os.path.dirname(os.path.abspath(__file__))
+    current_dir = get_package_abspath()
      # Check for GPU availability
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
-    tokenizer = RobertaTokenizer.from_pretrained(os.path.join(current_dir, "tokenizer"), max_length=150)
+    tokenizer = RobertaTokenizer.from_pretrained(os.path.join(current_dir, "tokenizer"), max_len=150)
     model = RoFormerModel.from_pretrained(os.path.join(current_dir, "BCRencoder")).to(device)
     
     bcr_file = pd.read_csv(datapath, index_col="barcode")
     bcr_file["whole_seq"] = bcr_file["fwr1"].str.cat([bcr_file["cdr1"], bcr_file["fwr2"], bcr_file["cdr2"], bcr_file["fwr3"], bcr_file["cdr3"], bcr_file["fwr4"]])
     
+    
     # Process sequences in batches
     berta_emb  = batch_process_sequences(bcr_file["whole_seq"].tolist(), tokenizer, model, device=device)
-    print(berta_emb.shape)
+
+    model.to('cpu')
+    del model
+    gc.collect()
+    torch.cuda.empty_cache()
 
     if not os.path.exists(outdir):
         os.mkdir(outdir)
@@ -79,6 +106,5 @@ def generate_original_bcremb(datapath, outdir, outfilename = "antiberta_embeddin
     berta_emb_df['barcode'] = bcr_file.index.tolist()
     berta_emb_df.to_csv(os.path.join(outdir, outfilename), index=False)
     
-    return berta_emb
     
    

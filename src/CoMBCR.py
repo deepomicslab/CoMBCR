@@ -30,7 +30,8 @@ def seed_torch(seed=0):
 	torch.backends.cudnn.benchmark = False
 	torch.backends.cudnn.deterministic = True
 	os.environ['CUBLAS_WORKSPACE_CONFIG']=':16:8'
-	torch.use_deterministic_algorithms(True)
+	torch.use_deterministic_algorithms(True, warn_only=True)
+
 
 class AverageMeter(object):
     """Computes and stores the average and current value"""
