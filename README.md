@@ -70,9 +70,6 @@ We provide a [tutorial](./tutorial.ipynb) for the usage of CoMBCR.
 >> |**lr_step** | Default is [30,100]. These are the milestones for the MultiStepLR setting, which adjusts the learning rate at specified epochs.|
 >> |**encoderprofile_in_dim**| Default is 5000. Adjust this parameter if the number of input genes differs from 5000.|
 >> |**separatebatch**|The default is False. If set to True, BCRs from different samples will be treated as distinct BCRs. Ensure that your BCR input file contains a "sample" column if you choose to enable this option. |
-
-## Acknowledgements
-The code was based in part on the source code of [UniTCR](https://github.com/bm2-lab/UniTCR/tree/main).
 ## Questions
 If you encounter issues installing or using CoMBCR, please feel free to open a issue or contact me via [email](yipingzou2-c@my.cityu.edu.hk).
 
