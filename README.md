@@ -53,7 +53,7 @@ We provide a [tutorial](./tutorial.ipynb) for the usage of CoMBCR.
 >>            encoderprofile_in_dim=5000)
 >> ```
 >> This code returns numpy arrays for BCR embeddings and gene expression embeddings, and outputs "bcrembedding.csv" and "gexembedding.csv" in the specified output directory.  
->> Please note that these CSV files directly store the numpy arrays and, as such, do not include any "barcode" column. When reading these files, ensure that you do not specify any index column.
+>> Please note that these CSV files directly store the numpy arrays in the order of your input cells and, as such, do not include any "barcode" column. When reading these files, ensure that you do not specify any index column.
 > ### Parameters of CoMBCR
 >> | Parameter | Description |
 >> | ------------- | ------------- |
