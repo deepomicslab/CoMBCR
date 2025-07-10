@@ -8,7 +8,7 @@ We recommend the versions of the following packages:
 - Pytorch (2.4.1)  
 - Transformers (4.41.2)  
 - Numpy (1.26.4)  
-- Pandas (below version 2)  
+- Pandas (2.2.3)  
 - Scikit-learn (1.5.1)  
 - huggingface_hub by ```python3 -m pip install huggingface_hub```
 
