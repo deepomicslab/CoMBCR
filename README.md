@@ -77,5 +77,5 @@ Please refer to [tutorial_pair](./tutorial_pair.ipynb) if you want to use the pa
 ## Acknowledgements
 The code was based in part on the source code of [UniTCR](https://github.com/bm2-lab/UniTCR/tree/main).
 ## Questions
-If you encounter issues installing or using CoMBCR, please feel free to open a issue or contact me via [email](yipingzou2-c@my.cityu.edu.hk).
+If you encounter issues installing or using CoMBCR, please feel free to open an issue.
 
