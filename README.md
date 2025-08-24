@@ -2,7 +2,7 @@
 ## Introduction
 CoMBCR is an innovative B-cell embedding method designed to integrate multi-modal data from B cells, particularly BCRs and gene expressions, within a co-learning framework. By accepting paired BCR sequences and gene expression profiles as input, CoMBCR effectively integrates these two modalities to produce joint representations for each B cell, focusing specifically on the heavy chain of BCRs. 
 ## Prerequisites
-CoMBCR is implemented in Python and requires a GPU for the acceleration. 
+CoMBCR is implemented in Python and requires a GPU for acceleration. 
 
 We recommend the versions of the following packages:  
 - Pytorch (2.4.1)  
@@ -18,13 +18,13 @@ Install CoMBCR using pip:
 ```
 pip3 install CoMBCR
 ```
-Then, install the default pre-trained encoder (The code only need to be executed once when install CoMBCR):
+Then, install the default pre-trained encoder (The code only needs to be executed once when installing CoMBCR):
 ```
 from CoMBCR.utils import download_BCRencoder
 download_BCRencoder()
 ```
 ## Tutorial
-Considering the computational resources and the performance, the current CoMBCR uses a heavy chain. We provide a [tutorial](./tutorial.ipynb) for the usage of CoMBCR. The following usage section is for the current version of CoMBCR.
+Considering the computational cost and the performance, the current CoMBCR uses a heavy chain. We provide a [tutorial](./tutorial.ipynb) for the usage of CoMBCR. The following usage section is for the current version of CoMBCR.
 
 If you want to use the paired chains, please directly refer to [tutorial_pair](./tutorial_pair.ipynb). Kindly note that the paired chains will cost double the computational resources, and the performance won't increase significantly according to the current tested outcomes. 
 
