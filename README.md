@@ -2,7 +2,7 @@
 ## Introduction
 CoMBCR is an innovative B-cell embedding method designed to integrate multi-modal data from B cells, particularly BCRs and gene expressions, within a co-learning framework. By accepting paired BCR sequences and gene expression profiles as input, CoMBCR effectively integrates these two modalities to produce joint representations for each B cell, focusing specifically on the heavy chain of BCRs. 
 ## Prerequisites
-CoMBCR is implemented in Python and requires a GPU for acceleration. 
+CoMBCR is implemented in Python and requires a GPU for the acceleration. 
 
 We recommend the versions of the following packages:  
 - Pytorch (2.4.1)  
@@ -18,15 +18,15 @@ Install CoMBCR using pip:
 ```
 pip3 install CoMBCR
 ```
-Then, install the default pre-trained encoder (The code only needs to be executed once when installing CoMBCR):
+Then, install the default pre-trained encoder (The code only need to be executed once when install CoMBCR):
 ```
 from CoMBCR.utils import download_BCRencoder
 download_BCRencoder()
 ```
 ## Tutorial
-Considering the computational cost and the performance, the current CoMBCR uses a heavy chain. We provide a [tutorial](./tutorial.ipynb) for the usage of CoMBCR. The following usage section is for the current version of CoMBCR.
+We provide a [tutorial](./tutorial.ipynb) for the usage of CoMBCR. The following usage section is for the current version of CoMBCR.
 
-If you want to use the paired chains, please directly refer to [tutorial_pair](./tutorial_pair.ipynb). Kindly note that the paired chains will cost double the computational resources, and the performance won't increase significantly according to the current tested outcomes. 
+Please refer to [tutorial_pair](./tutorial_pair.ipynb) if you want to use the paired chains. Kindly noted that the paired-chains will cost double computational resources and the performance won't increase significantly according to the current tested outcomes. 
 
 ## Usage
 > ### Prepare input data
@@ -70,10 +70,12 @@ If you want to use the paired chains, please directly refer to [tutorial_pair](.
 >> |**batch_size** | Default is 256.|
 >> |**epochs** | Default is 200.|
 >> |**patience**| Default is 15, the patience for early stopping.|
->> |**lr_step** | Default is [30,100]. These are the milestones for the MultiStepLR setting, which adjusts the learning rate at specified epochs.|
+>> |**lr_step** | Default is [50,100]. These are the milestones for the MultiStepLR setting, which adjusts the learning rate at specified epochs.|
 >> |**encoderprofile_in_dim**| Default is 5000. Adjust this parameter if the number of input genes differs from 5000.|
 >> |**separatebatch**|The default is False. If set to True, BCRs from different samples will be treated as distinct BCRs. Ensure that your BCR input file contains a "sample" column if you choose to enable this option. |
 
+## Acknowledgements
+The code was based in part on the source code of [UniTCR](https://github.com/bm2-lab/UniTCR/tree/main).
 ## Questions
-If you encounter issues installing or using CoMBCR, please feel free to open an issue.
+If you encounter issues installing or using CoMBCR, please feel free to open a issue or contact me via [email](yipingzou2-c@my.cityu.edu.hk).
 
