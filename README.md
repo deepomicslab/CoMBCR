@@ -26,7 +26,7 @@ download_BCRencoder()
 ## Tutorial
 We provide a [tutorial](./tutorial.ipynb) for the usage of CoMBCR. The following usage section is for the current version of CoMBCR.
 
-Please refer to [tutorial_pair](./tutorial_pair.ipynb) if you want to use the paired chains. Kindly noted that the paired-chains will cost double computational resources and the performance won't increase significantly according to the current tested outcomes. 
+Please refer to [tutorial_pair](./tutorial_pair.ipynb) if you want to use the paired chains. Kindly noted that the paired-chains will cost double computational resources.
 
 ## Usage
 > ### Prepare input data
