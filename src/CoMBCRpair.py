@@ -15,7 +15,7 @@ import random
 import csv
 from sklearn.preprocessing import LabelEncoder
 from transformers import ( 
-        RobertaTokenizer, 
+        RobertaTokenizer, RoFormerTokenizer,
         RoFormerModel,
         pipeline
     )
@@ -32,6 +32,48 @@ def seed_torch(seed=0):
 	os.environ['CUBLAS_WORKSPACE_CONFIG']=':16:8'
 	torch.use_deterministic_algorithms(True, warn_only=True)
 
+
+def format_bcr_for_tokenizer(df, igh_col='IGH', igl_col='IGL'):
+    """
+    Convert B cell sequences to tokenizer format.
+    For each B cell, combine IGH and IGL sequences with [SEP] token.
+    
+    Parameters:
+    -----------
+    df : pandas.DataFrame
+        DataFrame containing B cell data with IGH and IGL columns
+    igh_col : str
+        Column name for heavy chain sequences (default: 'IGH')
+    igl_col : str
+        Column name for light chain sequences (default: 'IGL')
+    
+    Returns:
+    --------
+    pandas.DataFrame
+        DataFrame with additional 'tokenized_seq' column
+    """
+    
+    def format_sequence(row):
+        """Format a single B cell sequence"""
+        igh_seq = row[igh_col]
+        igl_seq = row[igl_col]
+        
+        # Check if sequences are valid
+        if pd.isna(igh_seq) or pd.isna(igl_seq):
+            return None
+        
+        # Convert sequences to space-separated amino acids
+        igh_formatted = ' '.join(list(igh_seq))
+        igl_formatted = ' '.join(list(igl_seq))
+        
+        # Combine with [SEP] token
+        tokenized_seq = f"Ḣ {igh_formatted} [SEP] Ḷ {igl_formatted}"
+        
+        return tokenized_seq
+    
+    tokenized_seqs = df.apply(format_sequence, axis=1)
+    
+    return list(tokenized_seqs.values)
 
 class AverageMeter(object):
     """Computes and stores the average and current value"""
@@ -186,15 +228,17 @@ class Encoder_profile(nn.Module):
         return compressed_profile
 
 class CustomDataset(Dataset):
-    def __init__(self, bcrfile_path, rnafile_path, separatebatch=False):
+    def __init__(self, bcrfile_path, rnafile_path, separatebatch=False, IGH_clonotype=False):
         super(CustomDataset, self).__init__()
         rnafile = pd.read_csv(rnafile_path, sep=",", index_col="barcode", low_memory=False)
         self.rnamatrix = torch.from_numpy(rnafile.values).float()
         
         bcrfile = pd.read_csv(bcrfile_path, sep=",", index_col="barcode", low_memory=False)
         le = LabelEncoder()
-        bcrfile = bcrfile[(bcrfile["chain"] == "IGH")]
-        bcrfile["whole_seq"] = bcrfile["fwr1"].str.cat([bcrfile["cdr1"], bcrfile["fwr2"], bcrfile["cdr2"], bcrfile["fwr3"], bcrfile["cdr3"], bcrfile["fwr4"]])
+        if IGH_clonotype:
+            bcrfile["whole_seq"] = bcrfile['IGH']
+        else:
+            bcrfile["whole_seq"] = bcrfile['IGH'].str.cat(bcrfile['IGL'])
         bcrfile['sample'] = bcrfile['sample'].astype(str)
         if separatebatch:
             print("keep invariant of a batch")
@@ -203,7 +247,7 @@ class CustomDataset(Dataset):
         else:
             self.bcridentity = le.fit_transform(bcrfile.whole_seq.tolist())
         self.bcridentity = torch.from_numpy(self.bcridentity)
-        self.bcr = bcrfile.whole_seq.tolist()
+        self.bcr = format_bcr_for_tokenizer(bcrfile)
         
         assert(len(rnafile)==len(bcrfile))
     
@@ -295,7 +339,7 @@ class mydefine_loss(nn.Module):
 
 
 def CoMBCR_main(bcrpath, rnapath, bcroriginal, outdir, checkpoint="best_network.pth", 
-                lr=1e-6, lam=1e-1, batch_size=256, epochs=200, patience=15, lr_step=[50,100], encoderprofile_in_dim=5000, separatebatch = False):
+                lr=1e-6, lam=1e-1, batch_size=256, epochs=200, patience=15, lr_step=[50,100], encoderprofile_in_dim=5000, separatebatch = False, IGH_clonotype=False):
     
     
     # Find the directory of the current file (combcr.py)
@@ -308,7 +352,7 @@ def CoMBCR_main(bcrpath, rnapath, bcroriginal, outdir, checkpoint="best_network.
     print('learning rate is ', lr)
     bcrfile_path = bcrpath
     rnafile_path = rnapath
-    dataset = CustomDataset(bcrfile_path = bcrfile_path, rnafile_path=rnafile_path, separatebatch=separatebatch)
+    dataset = CustomDataset(bcrfile_path = bcrfile_path, rnafile_path=rnafile_path, separatebatch=separatebatch, IGH_clonotype=IGH_clonotype)
     
     # prepare intra-distance
     bcrsimilar = pd.read_csv(bcroriginal, index_col="barcode", low_memory=False).values
@@ -321,7 +365,7 @@ def CoMBCR_main(bcrpath, rnapath, bcroriginal, outdir, checkpoint="best_network.
     rnadist = torch.cdist(rnavalues, rnavalues)
     
     seed_torch()
-    tokenizer = RobertaTokenizer.from_pretrained(os.path.join(current_dir, "tokenizer"), max_len=150)
+    tokenizer = RoFormerTokenizer.from_pretrained(os.path.join(current_dir, "BCRencoder"))
     early_stopping = EarlyStopping(outdir, patience=patience, checkpoint=checkpoint)
     loader = DataLoader(dataset, batch_size=batch_size,shuffle=True)
     runmodel = CoMBCR_model(encoderBCR_out_dim=256,
@@ -349,7 +393,7 @@ def CoMBCR_main(bcrpath, rnapath, bcroriginal, outdir, checkpoint="best_network.
         loss_p2p_epoch.reset()
         loss_all.reset()
         for batch, (bcr, gex, identity, idx) in enumerate(loader):
-            tokenized_input = tokenizer(list(bcr), return_tensors='pt', padding=True)
+            tokenized_input = tokenizer(list(bcr), return_tensors='pt', padding='max_length', truncation=True, max_length=255)
             tokenized_input = tokenized_input.to(device)
             gex = gex.to(device)
             identity_BCR = identity.to(device)
@@ -397,7 +441,7 @@ def CoMBCR_main(bcrpath, rnapath, bcroriginal, outdir, checkpoint="best_network.
     for epoch in np.arange(1):
         with torch.no_grad():
             for batch, (bcr, gex, identity, idx) in enumerate(loader):
-                tokenized_input = tokenizer(list(bcr), return_tensors='pt', padding=True)
+                tokenized_input = tokenizer(list(bcr), return_tensors='pt', padding='max_length', truncation=True, max_length=255)
                 tokenized_input = tokenized_input.to(device)
                 encoderBCR_embedding = runmodel.encoder_BCR.eval()(tokenized_input)
                 encoderBCR_embedding = runmodel.BCR_project.eval()(encoderBCR_embedding)
