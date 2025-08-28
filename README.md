@@ -70,7 +70,7 @@ Please refer to [tutorial_pair](./tutorial_pair.ipynb) if you want to use the pa
 >> |**batch_size** | Default is 256.|
 >> |**epochs** | Default is 200.|
 >> |**patience**| Default is 15, the patience for early stopping.|
->> |**lr_step** | Default is [50,100]. These are the milestones for the MultiStepLR setting, which adjusts the learning rate at specified epochs.|
+>> |**lr_step** | Default is [40,100]. These are the milestones for the MultiStepLR setting, which adjusts the learning rate at specified epochs.|
 >> |**encoderprofile_in_dim**| Default is 5000. Adjust this parameter if the number of input genes differs from 5000.|
 >> |**separatebatch**|The default is False. If set to True, BCRs from different samples will be treated as distinct BCRs. Ensure that your BCR input file contains a "sample" column if you choose to enable this option. |
 
