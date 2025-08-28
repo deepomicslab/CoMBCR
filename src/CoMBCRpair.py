@@ -339,7 +339,7 @@ class mydefine_loss(nn.Module):
 
 
 def CoMBCR_main(bcrpath, rnapath, bcroriginal, outdir, checkpoint="best_network.pth", 
-                lr=1e-6, lam=1e-1, batch_size=256, epochs=200, patience=15, lr_step=[50,100], encoderprofile_in_dim=5000, separatebatch = False, IGH_clonotype=False):
+                lr=1e-6, lam=1e-1, batch_size=256, epochs=200, patience=15, lr_step=[40,100], encoderprofile_in_dim=5000, separatebatch = False, IGH_clonotype=False):
     
     
     # Find the directory of the current file (combcr.py)
