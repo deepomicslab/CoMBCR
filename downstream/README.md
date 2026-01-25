@@ -1,0 +1,1 @@
+CoMBCR's generated embeddings for each dataset have been uploaded to [one drive](https://portland-my.sharepoint.com/:f:/g/personal/yipingzou2-c_my_cityu_edu_hk/IgD1AovEO8qKR5uq75cPfA2kAb9E0Tiquedt5G5hHp6vHwo?e=ALK4vq) due to the size limitation. 
